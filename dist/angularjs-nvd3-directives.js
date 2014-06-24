@@ -1,4 +1,4 @@
-/*! angularjs-nvd3-directives - v0.0.7 - 2014-05-28
+/*! angularjs-nvd3-directives - v0.0.7 - 2014-06-24
  * http://cmaurer.github.io/angularjs-nvd3-directives
  * Copyright (c) 2014 Christian Maurer; Licensed Apache License, v2.0 */
 ( function () {
@@ -313,7 +313,7 @@
       } );
 
       chart.discretebar.dispatch.on( 'elementMouseout.tooltip.directive', function ( event ) {
-        scope.$emit( 'elementMouseover.tooltip.directive', event );
+        scope.$emit( 'elementMouseout.tooltip.directive', event );
       } );
 
       chart.discretebar.dispatch.on( 'elementClick.directive', function ( event ) {
@@ -327,7 +327,7 @@
       } );
 
       chart.multibar.dispatch.on( 'elementMouseout.tooltip.directive', function ( event ) {
-        scope.$emit( 'elementMouseover.tooltip.directive', event );
+        scope.$emit( 'elementMouseout.tooltip.directive', event );
       } );
 
       chart.multibar.dispatch.on( 'elementClick.directive', function ( event ) {
@@ -342,7 +342,7 @@
       } );
 
       chart.pie.dispatch.on( 'elementMouseout.tooltip.directive', function ( event ) {
-        scope.$emit( 'elementMouseover.tooltip.directive', event );
+        scope.$emit( 'elementMouseout.tooltip.directive', event );
       } );
 
       chart.pie.dispatch.on( 'elementClick.directive', function ( event ) {
@@ -356,7 +356,7 @@
       } );
 
       chart.scatter.dispatch.on( 'elementMouseout.tooltip.directive', function ( event ) {
-        scope.$emit( 'elementMouseover.tooltip.directive', event );
+        scope.$emit( 'elementMouseout.tooltip.directive', event );
       } );
     }
 
@@ -366,7 +366,7 @@
       } );
 
       chart.bullet.dispatch.on( 'elementMouseout.tooltip.directive', function ( event ) {
-        scope.$emit( 'elementMouseover.tooltip.directive', event );
+        scope.$emit( 'elementMouseout.tooltip.directive', event );
       } );
     }
 
@@ -770,7 +770,7 @@
     if ( !attrs.id ) {
       //if an id is not supplied, create a random id.
       if ( !attrs[ 'data-chartid' ] ) {
-        angular.element( element ).attrs( 'data-chartid', 'chartid' + Math.floor( Math.random() * 1000000001 ) );
+        angular.element( element ).attr( 'data-chartid', 'chartid' + Math.floor( Math.random() * 1000000001 ) );
       }
       return '[data-chartid=' + attrs[ 'data-chartid' ] + ']';
     } else {
@@ -2463,7 +2463,7 @@
                     return attrs.isarea === 'true';
                   } ).size( attrs.size === undefined ? function ( d ) {
                     return d.size === undefined ? 1 : d.size;
-                  } : scope.size() ).interactive( attrs.interactive === undefined ? false : attrs.interactive === 'true' ).interpolate( attrs.interpolate === undefined ? 'linear' : attrs.interpolate );
+                  } : scope.size() ).interactive( attrs.interactive === undefined ? false : attrs.interactive === 'true' ).clipEdge( attrs.clipedge === undefined ? false : attrs.clipedge === 'true' ).clipVoronoi( attrs.clipvoronoi === undefined ? false : attrs.clipvoronoi === 'true' ).interpolate( attrs.interpolate === undefined ? 'linear' : attrs.interpolate );
                   if ( attrs.defined ) {
                     chart.defined( scope.defined() );
                   }
@@ -2748,6 +2748,390 @@
                   }
                   configureXaxis( chart, scope, attrs );
                   configureYaxis( chart, scope, attrs );
+                  processEvents( chart, scope );
+                  scope.d3Call( data, chart );
+                  nv.utils.windowResize( chart.update );
+                  scope.chart = chart;
+                  return chart;
+                },
+                callback: attrs.callback === undefined ? null : scope.callback()
+              } );
+            }
+          }, attrs.objectequality === undefined ? false : attrs.objectequality === 'true' );
+        }
+      };
+    }
+  ] ).directive( 'nvd3MultiChart', [
+    function () {
+      'use strict';
+      return {
+        restrict: 'EA',
+        scope: {
+          data: '=',
+          width: '@',
+          height: '@',
+          id: '@',
+          showlegend: '@',
+          tooltips: '@',
+          showxaxis: '@',
+          showyaxis: '@',
+          rightalignyaxis: '@',
+          defaultstate: '@',
+          nodata: '@',
+          margin: '&',
+          margin2: '&',
+          tooltipcontent: '&',
+          color: '&',
+          x: '&',
+          y: '&',
+          forceX: '@',
+          forceY: '@',
+          clipedge: '@',
+          clipvoronoi: '@',
+          interpolate: '@',
+          isArea: '@',
+          size: '&',
+          defined: '&',
+          interactive: '@',
+          callback: '&',
+          xaxisorient: '&',
+          xaxisticks: '&',
+          xaxistickvalues: '&xaxistickvalues',
+          xaxisticksubdivide: '&',
+          xaxisticksize: '&',
+          xaxistickpadding: '&',
+          xaxistickformat: '&',
+          xaxislabel: '@',
+          xaxisscale: '&',
+          xaxisdomain: '&',
+          xaxisrange: '&',
+          xaxisrangeband: '&',
+          xaxisrangebands: '&',
+          xaxisshowmaxmin: '@',
+          xaxishighlightzero: '@',
+          xaxisrotatelabels: '@',
+          xaxisrotateylabel: '@',
+          xaxisstaggerlabels: '@',
+          x2axisorient: '&',
+          x2axisticks: '&',
+          x2axistickvalues: '&xaxistickvalues',
+          x2axisticksubdivide: '&',
+          x2axisticksize: '&',
+          x2axistickpadding: '&',
+          x2axistickformat: '&',
+          x2axislabel: '@',
+          x2axisscale: '&',
+          x2axisdomain: '&',
+          x2axisrange: '&',
+          x2axisrangeband: '&',
+          x2axisrangebands: '&',
+          x2axisshowmaxmin: '@',
+          x2axishighlightzero: '@',
+          x2axisrotatelables: '@',
+          x2axisrotateylabel: '@',
+          x2axisstaggerlabels: '@',
+          yaxisorient: '&',
+          yaxisticks: '&',
+          yaxistickvalues: '&yaxistickvalues',
+          yaxisticksubdivide: '&',
+          yaxisticksize: '&',
+          yaxistickpadding: '&',
+          yaxistickformat: '&',
+          yaxislabel: '@',
+          yaxisscale: '&',
+          yaxisdomain: '&',
+          yaxisrange: '&',
+          yaxisrangeband: '&',
+          yaxisrangebands: '&',
+          yaxisshowmaxmin: '@',
+          yaxishighlightzero: '@',
+          yaxisrotatelabels: '@',
+          yaxisrotateylabel: '@',
+          yaxisstaggerlabels: '@',
+          y2axisorient: '&',
+          y2axisticks: '&',
+          y2axistickvalues: '&',
+          y2axisticksubdivide: '&',
+          y2axisticksize: '&',
+          y2axistickpadding: '&',
+          y2axistickformat: '&',
+          y2axislabel: '&',
+          y2axisscale: '&',
+          y2axisdomain: '&',
+          y2axisrange: '&',
+          y2axisrangeband: '&',
+          y2axisrangebands: '&',
+          y2axisshowmaxmin: '@',
+          y2axishighlightzero: '@',
+          y2axisrotatelabels: '@',
+          y2axisrotateylabel: '@',
+          y2axisstaggerlabels: '@',
+          legendmargin: '&',
+          legendwidth: '@',
+          legendheight: '@',
+          legendkey: '@',
+          legendcolor: '&',
+          legendalign: '@',
+          legendrightalign: '@',
+          legendupdatestate: '@',
+          legendradiobuttonmode: '@',
+          objectequality: '@',
+          transitionduration: '@'
+        },
+        controller: [
+          '$scope',
+          '$element',
+          '$attrs',
+          function ( $scope, $element, $attrs ) {
+            $scope.d3Call = function ( data, chart ) {
+              checkElementID( $scope, $attrs, $element, chart, data );
+            };
+          }
+        ],
+        link: function ( scope, element, attrs ) {
+          scope.$watch( 'data', function ( data ) {
+            if ( data != undefined ) {
+              //if the chart exists on the scope, do not call addGraph again, update data and call the chart.
+              if ( scope.chart ) {
+                return scope.d3Call( data, scope.chart );
+              }
+              nv.addGraph( {
+                generate: function () {
+                  initializeMargin( scope, attrs );
+                  //setup height 2
+                  //height 2 is 100
+                  //margin
+                  //nvd3 default is {top: 30, right: 30, bottom: 30, left: 60}
+                  //setup margin 2
+                  //nvd3 default is {top: 0, right: 30, bottom: 20, left: 60}
+                  if ( attrs.margin2 ) {
+                    var margin2 = scope.$eval( attrs.margin2 );
+                    if ( typeof margin2 !== 'object' ) {
+                      // we were passed a vanilla int, convert to full margin object
+                      margin2 = {
+                        left: margin2,
+                        top: margin2,
+                        bottom: margin2,
+                        right: margin2
+                      };
+                    }
+                    scope.margin2 = margin2;
+                  } else {
+                    scope.margin2 = {
+                      top: 0,
+                      right: 30,
+                      bottom: 20,
+                      left: 60
+                    };
+                  }
+                  //'xDomain', 'yDomain', 'xRange', 'yRange', ''clipEdge', 'clipVoronoi'
+                  var chart = nv.models.multiChart().width( scope.width ).height( scope.height ).margin( scope.margin ).x( attrs.x === undefined ? function ( d ) {
+                    return d[ 0 ];
+                  } : scope.x() ).y( attrs.y === undefined ? function ( d ) {
+                    return d[ 1 ];
+                  } : scope.y() ).showLegend( attrs.showlegend === undefined ? false : attrs.showlegend === 'true' ).tooltips( attrs.tooltips === undefined ? false : attrs.tooltips === 'true' ).color( attrs.color === undefined ? nv.utils.defaultColor() : scope.color() ).interpolate( attrs.interpolate === undefined ? 'linear' : attrs.interpolate );
+                  if ( attrs.defined ) {
+                    chart.defined( scope.defined() );
+                  }
+                  if ( attrs.tooltipcontent ) {
+                    chart.tooltipContent( scope.tooltipcontent() );
+                  }
+                  configureXaxis( chart, scope, attrs );
+                  configureYaxis( chart, scope, attrs );
+                  configureY2axis( chart, scope, attrs );
+                  configureLegend( chart, scope, attrs );
+                  processEvents( chart, scope );
+                  scope.d3Call( data, chart );
+                  nv.utils.windowResize( chart.update );
+                  scope.chart = chart;
+                  return chart;
+                },
+                callback: attrs.callback === undefined ? null : scope.callback()
+              } );
+            }
+          }, attrs.objectequality === undefined ? false : attrs.objectequality === 'true' );
+        }
+      };
+    }
+  ] ).directive( 'nvd3MultiChart', [
+    function () {
+      'use strict';
+      return {
+        restrict: 'EA',
+        scope: {
+          data: '=',
+          width: '@',
+          height: '@',
+          id: '@',
+          showlegend: '@',
+          tooltips: '@',
+          showxaxis: '@',
+          showyaxis: '@',
+          rightalignyaxis: '@',
+          defaultstate: '@',
+          nodata: '@',
+          margin: '&',
+          margin2: '&',
+          tooltipcontent: '&',
+          color: '&',
+          x: '&',
+          y: '&',
+          forceX: '@',
+          forceY: '@',
+          clipedge: '@',
+          clipvoronoi: '@',
+          interpolate: '@',
+          isArea: '@',
+          size: '&',
+          defined: '&',
+          interactive: '@',
+          callback: '&',
+          xaxisorient: '&',
+          xaxisticks: '&',
+          xaxistickvalues: '&xaxistickvalues',
+          xaxisticksubdivide: '&',
+          xaxisticksize: '&',
+          xaxistickpadding: '&',
+          xaxistickformat: '&',
+          xaxislabel: '@',
+          xaxisscale: '&',
+          xaxisdomain: '&',
+          xaxisrange: '&',
+          xaxisrangeband: '&',
+          xaxisrangebands: '&',
+          xaxisshowmaxmin: '@',
+          xaxishighlightzero: '@',
+          xaxisrotatelabels: '@',
+          xaxisrotateylabel: '@',
+          xaxisstaggerlabels: '@',
+          x2axisorient: '&',
+          x2axisticks: '&',
+          x2axistickvalues: '&xaxistickvalues',
+          x2axisticksubdivide: '&',
+          x2axisticksize: '&',
+          x2axistickpadding: '&',
+          x2axistickformat: '&',
+          x2axislabel: '@',
+          x2axisscale: '&',
+          x2axisdomain: '&',
+          x2axisrange: '&',
+          x2axisrangeband: '&',
+          x2axisrangebands: '&',
+          x2axisshowmaxmin: '@',
+          x2axishighlightzero: '@',
+          x2axisrotatelables: '@',
+          x2axisrotateylabel: '@',
+          x2axisstaggerlabels: '@',
+          yaxisorient: '&',
+          yaxisticks: '&',
+          yaxistickvalues: '&yaxistickvalues',
+          yaxisticksubdivide: '&',
+          yaxisticksize: '&',
+          yaxistickpadding: '&',
+          yaxistickformat: '&',
+          yaxislabel: '@',
+          yaxisscale: '&',
+          yaxisdomain: '&',
+          yaxisrange: '&',
+          yaxisrangeband: '&',
+          yaxisrangebands: '&',
+          yaxisshowmaxmin: '@',
+          yaxishighlightzero: '@',
+          yaxisrotatelabels: '@',
+          yaxisrotateylabel: '@',
+          yaxisstaggerlabels: '@',
+          y2axisorient: '&',
+          y2axisticks: '&',
+          y2axistickvalues: '&',
+          y2axisticksubdivide: '&',
+          y2axisticksize: '&',
+          y2axistickpadding: '&',
+          y2axistickformat: '&',
+          y2axislabel: '&',
+          y2axisscale: '&',
+          y2axisdomain: '&',
+          y2axisrange: '&',
+          y2axisrangeband: '&',
+          y2axisrangebands: '&',
+          y2axisshowmaxmin: '@',
+          y2axishighlightzero: '@',
+          y2axisrotatelabels: '@',
+          y2axisrotateylabel: '@',
+          y2axisstaggerlabels: '@',
+          legendmargin: '&',
+          legendwidth: '@',
+          legendheight: '@',
+          legendkey: '@',
+          legendcolor: '&',
+          legendalign: '@',
+          legendrightalign: '@',
+          legendupdatestate: '@',
+          legendradiobuttonmode: '@',
+          objectequality: '@',
+          transitionduration: '@'
+        },
+        controller: [
+          '$scope',
+          '$element',
+          '$attrs',
+          function ( $scope, $element, $attrs ) {
+            $scope.d3Call = function ( data, chart ) {
+              checkElementID( $scope, $attrs, $element, chart, data );
+            };
+          }
+        ],
+        link: function ( scope, element, attrs ) {
+          scope.$watch( 'data', function ( data ) {
+            if ( data != undefined ) {
+              //if the chart exists on the scope, do not call addGraph again, update data and call the chart.
+              if ( scope.chart ) {
+                return scope.d3Call( data, scope.chart );
+              }
+              nv.addGraph( {
+                generate: function () {
+                  initializeMargin( scope, attrs );
+                  //setup height 2
+                  //height 2 is 100
+                  //margin
+                  //nvd3 default is {top: 30, right: 30, bottom: 30, left: 60}
+                  //setup margin 2
+                  //nvd3 default is {top: 0, right: 30, bottom: 20, left: 60}
+                  if ( attrs.margin2 ) {
+                    var margin2 = scope.$eval( attrs.margin2 );
+                    if ( typeof margin2 !== 'object' ) {
+                      // we were passed a vanilla int, convert to full margin object
+                      margin2 = {
+                        left: margin2,
+                        top: margin2,
+                        bottom: margin2,
+                        right: margin2
+                      };
+                    }
+                    scope.margin2 = margin2;
+                  } else {
+                    scope.margin2 = {
+                      top: 0,
+                      right: 30,
+                      bottom: 20,
+                      left: 60
+                    };
+                  }
+                  //'xDomain', 'yDomain', 'xRange', 'yRange', ''clipEdge', 'clipVoronoi'
+                  var chart = nv.models.multiChart().width( scope.width ).height( scope.height ).margin( scope.margin ).x( attrs.x === undefined ? function ( d ) {
+                    return d[ 0 ];
+                  } : scope.x() ).y( attrs.y === undefined ? function ( d ) {
+                    return d[ 1 ];
+                  } : scope.y() ).showLegend( attrs.showlegend === undefined ? false : attrs.showlegend === 'true' ).tooltips( attrs.tooltips === undefined ? false : attrs.tooltips === 'true' ).color( attrs.color === undefined ? nv.utils.defaultColor() : scope.color() ).interpolate( attrs.interpolate === undefined ? 'linear' : attrs.interpolate );
+                  if ( attrs.defined ) {
+                    chart.defined( scope.defined() );
+                  }
+                  if ( attrs.tooltipcontent ) {
+                    chart.tooltipContent( scope.tooltipcontent() );
+                  }
+                  configureXaxis( chart, scope, attrs );
+                  configureY1axis( chart, scope, attrs );
+                  configureY2axis( chart, scope, attrs );
+                  configureLegend( chart, scope, attrs );
                   processEvents( chart, scope );
                   scope.d3Call( data, chart );
                   nv.utils.windowResize( chart.update );
